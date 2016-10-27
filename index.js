@@ -13,7 +13,8 @@ export default class DashDashjsPlayback extends HTML5Video {
       var script = document.createElement('script')
       script.setAttribute("type", "text/javascript")
       script.setAttribute("async", "async")
-      script.setAttribute("src", "https://sslplayers-vh.akamaihd.net/dash.js/latest/dash.all.js")
+      script.setAttribute("src", "//cdnjs.cloudflare.com/ajax/libs/dashjs/2.3.0/dash.all.min.js")
+	// "https://sslplayers-vh.akamaihd.net/dash.js/latest/dash.all.js")
       script.onload = () => this._setup()
       script.onerror = (e) => this._onError(e)
       document.body.appendChild(script)
@@ -27,10 +28,12 @@ export default class DashDashjsPlayback extends HTML5Video {
   }
 
   _setup() {
-    var player = new MediaPlayer(new Dash.di.DashContext())
-    player.startup()
-    player.attachView(this.el)
-    player.attachSource(this.options.src)
+    var player = dashjs.MediaPlayer().create();
+    player.getDebug().setLogToBrowserConsole(false);
+    player.initialize(this.el,this.options.src,true);
+    if (typeof this.options.dashjsProtectionData !== "undefined") {
+      player.getProtectionController().setProtectionData(this.options.dashjsProtectionData);
+    }
   }
 
 }
@@ -38,5 +41,10 @@ export default class DashDashjsPlayback extends HTML5Video {
 DashDashjsPlayback.canPlay = function(resource, mimeType) {
   var resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || []
   return "mpd" === resourceParts[1]
+    || mimeType === "application/dash+xml"
+    || mimeType === "video/vnd.mpeg.dash.mpd"
+// /* hack... still CORS issues with videoplayback... */ ||resourceParts[1].indexOf("//manifest.")>=0
+// /* hack... */ ||resourceParts[1].indexOf(".ism/manifest")>=0
+// /* hack... */ ||resourceParts[1].indexOf("/mpds/")>=0
 }
 
