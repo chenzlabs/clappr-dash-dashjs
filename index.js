@@ -28,9 +28,12 @@ export default class DashDashjsPlayback extends HTML5Video {
   }
 
   _setup() {
-    var player = dashjs.MediaPlayer().create();
+    var ccdiv, player = dashjs.MediaPlayer().create();
     player.getDebug().setLogToBrowserConsole(false);
     player.initialize(this.el,this.options.src,true);
+    ccdiv=document.createElement('div');
+    this.el.parentNode.appendChild(ccdiv);
+    player.attachTTMLRenderingDiv(ccdiv);
     if (typeof this.options.dashjsProtectionData !== "undefined") {
       player.getProtectionController().setProtectionData(this.options.dashjsProtectionData);
     }
