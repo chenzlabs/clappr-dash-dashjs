@@ -29,6 +29,7 @@ export default class DashDashjsPlayback extends HTML5Video {
 
   _setup() {
     var ccdiv, player = dashjs.MediaPlayer().create();
+    this._player = player;
     player.getDebug().setLogToBrowserConsole(false);
     player.initialize(this.el,this.options.src,true);
     ccdiv=document.createElement('div');
@@ -39,6 +40,14 @@ export default class DashDashjsPlayback extends HTML5Video {
     }
   }
 
+  // mimic portions of shaka interface
+  get textTracks() {return this._player && this._player.getTracksFor('text')}
+  get audioTracks() {return this._player && this._player.getTracksFor('audio')}
+  get videoTracks() {return this._player && this._player.getTracksFor('video')}
+
+  selectTrack(track) {
+    this._player.setCurrentTrack(track)
+  }
 }
 
 DashDashjsPlayback.canPlay = function(resource, mimeType) {
